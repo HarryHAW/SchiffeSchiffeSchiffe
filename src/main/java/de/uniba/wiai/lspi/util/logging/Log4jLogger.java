@@ -2,7 +2,7 @@
  *                                                                         *
  *                             Log4jLogger.java                            *
  *                            -------------------                          *
- *   date                 : 26. März 2004, 12:37                           *
+ *   date                 : 26. Mï¿½rz 2004, 12:37                           *
  *   copyright            : (C) 2004 Distributed and Mobile Systems Group  *
  *                              Lehrstuhl fuer Praktische Informatik       *
  *                              Universitaet Bamberg                       *
@@ -71,6 +71,9 @@ public class Log4jLogger extends Logger {
 	 */
 	public final static String PROPERTIES_FILE_PROPERTY = "log4j.properties.file";
 
+	public final static String STANDARD_PROPERTY_FILE = "log4j.properties";
+
+
 	/**
 	 * Flag indicating if log4j has been configured before.
 	 */
@@ -97,12 +100,20 @@ public class Log4jLogger extends Logger {
 			configured = true;
 			boolean usefile = false;
 			java.net.URL configURL = null;
+
+			String file = STANDARD_PROPERTY_FILE;
+
+			if (System.getProperty(PROPERTIES_FILE_PROPERTY) != null
+					&& System.getProperty(PROPERTIES_FILE_PROPERTY)
+					.length() != 0) {
+				file = System.getProperty(PROPERTIES_FILE_PROPERTY);
+			}
+
 			try {
 				configURL = ClassLoader.getSystemClassLoader().getResource(
-						System.getProperty(PROPERTIES_FILE_PROPERTY));
+						file);
 				if (configURL == null) {
-					java.io.File f = new java.io.File(System
-							.getProperty(PROPERTIES_FILE_PROPERTY));
+					java.io.File f = new java.io.File(file);
 					usefile = f.exists();
 					configURL = f.toURL();
 				} else {
@@ -115,10 +126,9 @@ public class Log4jLogger extends Logger {
 				System.out.println("[" + Thread.currentThread().getName()
 						+ "] " + "INFO " + Log4jLogger.class.getName()
 						+ " - Configuring log4j with '"
-						+ System.getProperty(PROPERTIES_FILE_PROPERTY) + "'.");
+						+ file + "'.");
 				try {
-					if (System.getProperty(PROPERTIES_FILE_PROPERTY)
-							.toLowerCase().endsWith(".xml")) {
+					if (file.toLowerCase().endsWith(".xml")) {
 						org.apache.log4j.xml.DOMConfigurator
 								.configure(configURL);
 					} else // usual properties file
@@ -129,14 +139,14 @@ public class Log4jLogger extends Logger {
 					System.out.println("[" + Thread.currentThread().getName()
 							+ "] " + "INFO " + Log4jLogger.class.getName()
 							+ " - log4j configured with '"
-							+ System.getProperty(PROPERTIES_FILE_PROPERTY)
+							+ file
 							+ "'.");
 					Logger.getLogger(Logger.class).debug("Logger initialized.");
 				} catch (Throwable t) {
 					System.out.println("[" + Thread.currentThread().getName()
 							+ "] " + "ERROR " + Log4jLogger.class.getName()
 							+ " - log4j could not be configured with '"
-							+ System.getProperty(PROPERTIES_FILE_PROPERTY)
+							+ file
 							+ "'.");
 				}
 			} else {
@@ -148,7 +158,7 @@ public class Log4jLogger extends Logger {
 								+ "INFO "
 								+ Log4jLogger.class.getName()
 								+ " - Could not find log4j properties file with filename '"
-								+ System.getProperty(PROPERTIES_FILE_PROPERTY)
+								+ file
 								+ "'.");
 				System.out.println("[" + Thread.currentThread().getName()
 						+ "] " + "INFO " + Log4jLogger.class.getName()
