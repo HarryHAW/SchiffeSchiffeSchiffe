@@ -31,7 +31,7 @@ public class GameMapTest {
         BigInteger test3 = test1.add(test2);
         BigInteger test4 = test2.subtract(test1);
 
-        new GameMap(ID.valueOf(new BigInteger(one)), ID.valueOf(new BigInteger(two)));
+        new GameMap(ID.valueOf(new BigInteger(one)), ID.valueOf(new BigInteger(one)));
     }
 
 }

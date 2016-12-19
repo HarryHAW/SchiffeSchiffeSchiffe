@@ -1172,4 +1172,7 @@ public final class ChordImpl implements Chord, Report, AsynChord {
         }
     }
 
+    public Node getNode() {
+        return localNode;
+    }
 }
