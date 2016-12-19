@@ -1,3 +1,5 @@
+import de.uniba.wiai.lspi.chord.com.CommunicationException;
+import de.uniba.wiai.lspi.chord.com.Node;
 import de.uniba.wiai.lspi.chord.data.ID;
 import de.uniba.wiai.lspi.chord.data.URL;
 import de.uniba.wiai.lspi.chord.service.Chord;
@@ -8,6 +10,8 @@ import game.chord.NotifyCallbackImpl;
 
 import java.math.BigInteger;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -89,6 +93,18 @@ public class Main {
 
             Random rnd = new Random();
             BigInteger i = new BigInteger(160, rnd);
+
+            List<Node> nodes = new ArrayList<>();
+            Node node = chord.getNode();
+            try {
+                while(!nodes.contains(node)){
+                    nodes.add(node);
+                    node = node.findSuccessor(node.getNodeID().addPowerOfTwo(0));
+                }
+            } catch (CommunicationException e) {
+                e.printStackTrace();
+            }
+
             chord.retrieve(ID.valueOf(i));
             chord.broadcast(ID.valueOf(i),true);
 
