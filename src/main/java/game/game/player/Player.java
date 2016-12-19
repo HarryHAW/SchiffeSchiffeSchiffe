@@ -13,20 +13,32 @@ import java.util.List;
  */
 public class Player {
 
+    private ID player;
+    private ID predecessor;
+
     private GameMap gameMap;
     private List<Field> shootAt;
-    private List<Field> destroyedShips;
 
-    public Player(ID highBoarder, ID lowBoarder, List<Broadcast> history){
-        this.gameMap = new GameMap(highBoarder, lowBoarder);
+    public Player(ID player, ID predecessor, List<Broadcast> history) {
+        this.player = player;
+        this.predecessor = predecessor;
+
+        this.gameMap = new GameMap(player, predecessor);
 
         this.shootAt = new ArrayList<>();
-        this.destroyedShips = new ArrayList<>();
 
-        rewindHistory(history);
+        gameMap.addHistory(history);
     }
 
-    private void rewindHistory(List<Broadcast> history){
+    public ID getPlayer() {
+        return player;
+    }
 
+    public ID getPredecessor() {
+        return predecessor;
+    }
+
+    public void addBroadcast(Broadcast broadcast) {
+        gameMap.addBroadcast(broadcast);
     }
 }

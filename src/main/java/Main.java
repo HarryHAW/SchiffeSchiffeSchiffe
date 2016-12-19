@@ -94,16 +94,7 @@ public class Main {
             Random rnd = new Random();
             BigInteger i = new BigInteger(160, rnd);
 
-            List<Node> nodes = new ArrayList<>();
-            Node node = chord.getNode();
-            try {
-                while(!nodes.contains(node)){
-                    nodes.add(node);
-                    node = node.findSuccessor(node.getNodeID().addPowerOfTwo(0));
-                }
-            } catch (CommunicationException e) {
-                e.printStackTrace();
-            }
+
 
             chord.retrieve(ID.valueOf(i));
             chord.broadcast(ID.valueOf(i),true);
