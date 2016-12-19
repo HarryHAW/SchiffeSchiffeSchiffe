@@ -21,19 +21,25 @@ public class Game {
 
     private ID self;
 
-    public Game(ID self, ID pred, List<ID> players) {
+    public Game() {
         this.playerMap = new HashMap<>();
         this.history = new History();
+    }
+
+    public void initGame(ID self, ID pred, List<ID> players){
         this.self = self;
 
         players.add(self);
         players.add(pred);
         Collections.sort(players);
-    }
 
-    private void initGameMap(List<ID> players){
         for(int i = 0; i < players.size(); i++){
-            play
+            if(i < players.size() - 1) {
+                addplayer(players.get(i), players.get(i + 1));
+            }
+            else {
+                addplayer(players.get(i), players.get(0));
+            }
         }
     }
 

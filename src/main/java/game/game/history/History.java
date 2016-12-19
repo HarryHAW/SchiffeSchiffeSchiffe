@@ -13,13 +13,18 @@ import java.util.Map;
  */
 public class History {
     private Map<Integer, Broadcast> broadcasts;
+    private List<Broadcast> broadcastList;
 
     public History() {
         this.broadcasts = new HashMap<>();
+        this.broadcastList = new ArrayList<>();
     }
 
     public boolean addEntry(Broadcast broadcast) {
-        broadcasts.put(broadcast.getTransaction(), broadcast);
+        if(broadcast.getTransaction() != -1) {
+            broadcasts.put(broadcast.getTransaction(), broadcast);
+        }
+        broadcastList.add(broadcast);
         return true;
     }
 
