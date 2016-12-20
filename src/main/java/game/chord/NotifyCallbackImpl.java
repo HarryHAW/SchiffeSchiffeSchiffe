@@ -4,8 +4,8 @@ import de.uniba.wiai.lspi.chord.com.Broadcast;
 import de.uniba.wiai.lspi.chord.data.ID;
 import de.uniba.wiai.lspi.chord.service.NotifyCallback;
 import de.uniba.wiai.lspi.util.logging.Logger;
-import game.agent.Broadcasts;
-import game.agent.Retrives;
+import game.messaging.Message;
+import game.messaging.Messages;
 
 /**
  * Created by FBeck on 15.12.2016.
@@ -13,18 +13,16 @@ import game.agent.Retrives;
 public class NotifyCallbackImpl implements NotifyCallback {
     private static Logger LOG = Logger.getLogger(NotifyCallbackImpl.class);
 
-    private Broadcasts broadcasts;
-    private Retrives retrives;
+    private Messages messages;
 
-    public NotifyCallbackImpl(Broadcasts broadcasts, Retrives retrives) {
-        this.broadcasts = broadcasts;
-        this.retrives = retrives;
+    public NotifyCallbackImpl(Messages messages) {
+        this.messages = messages;
     }
 
     @Override
     public void retrieved(ID target) {
         LOG.debug(target);
-        retrives.put(target);
+        messages.put(new Message(Message.RETRIEVE, target));
     }
 
     /*@Override
@@ -35,6 +33,6 @@ public class NotifyCallbackImpl implements NotifyCallback {
     @Override
     public void broadcast(Broadcast broadcast) {
         LOG.debug(broadcast);
-        broadcasts.put(broadcast);
+        messages.put(new Message(Message.BROADCAST, broadcast));
     }
 }

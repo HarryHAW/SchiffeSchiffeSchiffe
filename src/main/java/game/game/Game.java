@@ -2,8 +2,11 @@ package game.game;
 
 import de.uniba.wiai.lspi.chord.com.Broadcast;
 import de.uniba.wiai.lspi.chord.data.ID;
-import game.game.player.Player;
+import de.uniba.wiai.lspi.util.logging.Logger;
 import game.game.history.History;
+import game.game.player.Player;
+import game.game.player.map.Field;
+import game.game.player.map.MyShips;
 
 import java.math.BigInteger;
 import java.util.*;
@@ -12,45 +15,95 @@ import java.util.*;
  * Created by beckf on 17.12.2016.
  */
 public class Game {
+    private static Logger LOG = Logger.getLogger(Game.class);
+
     public static final ID MIN_ID = ID.valueOf(BigInteger.ZERO);
     public static final ID MAX_ID = ID.valueOf(BigInteger.valueOf(2).pow(160).subtract(BigInteger.ONE));
-    public static final String FIELDS = "100";
+    public static final int FIELDS = 100;
+    public static final int SHIPS = 10;
 
     private Map<ID, Player> playerMap;
     private History history;
 
+    private List<ID> player;
     private ID self;
+    private MyShips myShips;
+
+    private boolean running;
+    private Broadcast finalShoot;
 
     public Game() {
         this.playerMap = new HashMap<>();
         this.history = new History();
+        this.player = new ArrayList<>();
+        this.myShips = new MyShips();
     }
 
-    public void initGame(ID self, ID pred, List<ID> players){
-        this.self = self;
+    public ID getSelf() {
+        return self;
+    }
 
-        players.add(self);
-        players.add(pred);
+    public List<ID> getPlayers() {
+        return player;
+    }
+
+    public Player getPlayer(ID id) {
+        return playerMap.get(id);
+    }
+
+    public boolean isRunning() {
+        return running;
+    }
+
+    public Broadcast getFinalShoot() {
+        return finalShoot;
+    }
+
+    public void initGame(ID self, ID pred, List<ID> players) {
+        LOG.info("InitGame");
+
+        this.self = self;
+        LOG.info("Self is: " + self);
+
+        if (!players.contains(self)) {
+            players.add(self);
+        }
+        if (!players.contains(pred)) {
+            players.add(pred);
+        }
         Collections.sort(players);
 
-        for(int i = 0; i < players.size(); i++){
-            if(i < players.size() - 1) {
-                addplayer(players.get(i), players.get(i + 1));
-            }
-            else {
-                addplayer(players.get(i), players.get(0));
+        for (int i = 0; i < players.size(); i++) {
+            if (i == 0) {
+                addplayer(players.get(i), players.get(players.size() - 1));
+            } else {
+                addplayer(players.get(i), players.get(i - 1));
             }
         }
+        LOG.info("Player after init: " + player.size());
+
+        myShips.initMyShips();
+        this.running = true;
+        LOG.info("Running is: " + running);
     }
 
     private void addplayer(ID player, ID predecessor) {
-        playerMap.put(player, new Player(player, predecessor, history.getHistoryForPlayer(player)));
+        Player newPlayer = new Player(player, predecessor);
+        playerMap.put(player, newPlayer);
+        if (!this.player.contains(player)) {
+            this.player.add(player);
+        }
+        history.getHistoryForPlayer(player).forEach(this::addBroadcast);
+        LOG.info("Player added: " + newPlayer.toString());
     }
 
     public void insertPlayer(ID newPlayer) {
+        LOG.info("Insert new Player: " + newPlayer);
         ID player = findSuccesor(newPlayer);
         addplayer(newPlayer, playerMap.get(player).getPredecessor());
         addplayer(player, newPlayer);
+        //TODO redo shoots fired
+        LOG.info("Player after insert: " + this.player.size());
     }
 
     public ID findSuccesor(ID id) {
@@ -58,19 +111,68 @@ public class Game {
         ids.add(id);
         Collections.sort(ids);
 
-        int succesor = (ids.indexOf(id) + 1) % ids.size();
-        return ids.get(succesor);
+        int successor = (ids.indexOf(id) + 1) % ids.size();
+        return ids.get(successor);
     }
 
     public void addBroadcast(Broadcast broadcast) {
+        LOG.info("Got Broadcast " + broadcast);
         ID source = broadcast.getSource();
+        Broadcast lastBroadcast = history.getLastBroadcast();
         if (history.addEntry(broadcast)) {
-            Player player = playerMap.get(source);
-            if (player != null) {
-                player.addBroadcast(broadcast);
+            if (playerMap.containsKey(source)) {
+                playerMap.get(source).addBroadcast(broadcast);
             } else {
                 insertPlayer(source);
             }
+            running = determineRunning(lastBroadcast);
+            if (!running) {
+                finalShoot = broadcast;
+            }
         }
+    }
+
+    public boolean gotShootAt(ID id) {
+        LOG.debug("Called GotShootAt with id: " + id);
+        boolean hit = false;
+        Player self = playerMap.get(this.self);
+        Field field = self.getFieldForID(id);
+        LOG.debug("GotShootAt found this Field: " + field);
+        if (field.isUnknown()) {
+            hit = myShips.isShipAt(field.getFieldID());
+        }
+        return hit;
+    }
+
+    public boolean determineRunning(Broadcast lastBroadcast) {
+        boolean running = true;
+        for (Map.Entry<ID, Player> entry : playerMap.entrySet()) {
+            if (!isPlayerAlive(entry.getValue()) && didIShootLast(lastBroadcast)) {
+                running = !entry.getValue().didIDoLastShoot();
+            }
+        }
+        return running;
+    }
+
+    public boolean isPlayerAlive(Player player) {
+        boolean alive = true;
+        if (player.getShip() == SHIPS) {
+            alive = false;
+        }
+        return alive;
+    }
+
+    public boolean didIShootLast(Broadcast lastBroadcast) {
+        boolean iShootLast = lastBroadcast.getSource().compareTo(self) == 0;
+        return iShootLast;
+    }
+
+    public boolean determineIfFirst() {
+        Player self = playerMap.get(this.self);
+        return MIN_ID.isInInterval(self.getPredecessor(), self.getPlayer());
+    }
+
+    public void addShootOnPlayer(ID player, Field shoot) {
+        playerMap.get(player).addShoot(shoot);
     }
 }

@@ -19,15 +19,12 @@ public class Player {
     private GameMap gameMap;
     private List<Field> shootAt;
 
-    public Player(ID player, ID predecessor, List<Broadcast> history) {
+    public Player(ID player, ID predecessor) {
         this.player = player;
         this.predecessor = predecessor;
 
-        this.gameMap = new GameMap(player, predecessor);
-
+        this.gameMap = new GameMap(predecessor, player);
         this.shootAt = new ArrayList<>();
-
-        gameMap.addHistory(history);
     }
 
     public ID getPlayer() {
@@ -38,7 +35,51 @@ public class Player {
         return predecessor;
     }
 
+    public int getWater() {
+        return gameMap.getWater();
+    }
+
+    public int getUnknown() {
+        return gameMap.getUnknown();
+    }
+
+    public int getShip() {
+        return gameMap.getShip();
+    }
+
     public void addBroadcast(Broadcast broadcast) {
         gameMap.addBroadcast(broadcast);
+    }
+
+    public List<Field> getShootAt() {
+        return shootAt;
+    }
+
+    public void addShoot(Field field) {
+        shootAt.add(field);
+    }
+
+    public List<Field> getFields(){
+        return gameMap.getFields();
+    }
+
+    public Field getFieldForID(ID id){
+        return gameMap.getFieldForID(id);
+    }
+
+    public boolean didIDoLastShoot(){
+        boolean iDidIt = false;
+        if(!shootAt.isEmpty() && shootAt.get(shootAt.size()-1).getFieldID() == gameMap.getLastShip().getFieldID()){
+            iDidIt = true;
+        }
+        return iDidIt;
+    }
+
+    @Override
+    public String toString() {
+        return "Player{" +
+                "predecessor=" + predecessor +
+                ", player=" + player +
+                '}';
     }
 }

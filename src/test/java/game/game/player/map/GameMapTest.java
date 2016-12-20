@@ -5,6 +5,8 @@ import org.junit.Test;
 
 import java.math.BigInteger;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * Created by beckf on 18.12.2016.
  */
@@ -32,6 +34,7 @@ public class GameMapTest {
         BigInteger test4 = test2.subtract(test1);
 
         new GameMap(ID.valueOf(new BigInteger(one)), ID.valueOf(new BigInteger(one)));
+        assertEquals(1,1);
     }
 
 }

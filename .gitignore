@@ -21,7 +21,7 @@ out
 .gradle
 build
 
-target
+/target/
 logs
 ML-to-do-notes.md
 data

@@ -1,10 +1,10 @@
 package game.chord;
 
-import de.uniba.wiai.lspi.chord.com.Broadcast;
 import de.uniba.wiai.lspi.chord.com.CommunicationException;
 import de.uniba.wiai.lspi.chord.com.Node;
 import de.uniba.wiai.lspi.chord.service.impl.ChordImpl;
-import game.agent.Broadcasts;
+import game.messaging.Message;
+import game.messaging.Messages;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -16,12 +16,12 @@ public class EnemyCrawler implements Runnable {
 
     private ChordImpl chord;
 
-    private Broadcasts broadcasts;
+    private Messages messages;
 
-    public EnemyCrawler(ChordImpl chord, Broadcasts broadcasts) {
+    public EnemyCrawler(ChordImpl chord, Messages messages) {
         this.chord = chord;
 
-        this.broadcasts = broadcasts;
+        this.messages = messages;
     }
 
     @Override
@@ -39,7 +39,7 @@ public class EnemyCrawler implements Runnable {
                 while (!node.equals(myNode)) {
                     nodes.add(node);
                     if(!nodes.contains(node)){
-                        broadcasts.put(new Broadcast(node.getNodeID(),node.getNodeID(),node.getNodeID(), -1, false));
+                        messages.put(new Message(Message.AGENT, node.getNodeID()));
                         foundNew = true;
                     }
                     node = node.findSuccessor(node.getNodeID().addPowerOfTwo(2));

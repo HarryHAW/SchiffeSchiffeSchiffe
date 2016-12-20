@@ -27,24 +27,19 @@
  ***************************************************************************/
 package de.uniba.wiai.lspi.chord.service.impl;
 
-import static de.uniba.wiai.lspi.util.logging.Logger.LogLevel.DEBUG;
-import static de.uniba.wiai.lspi.util.logging.Logger.LogLevel.INFO;
+import de.uniba.wiai.lspi.chord.com.*;
+import de.uniba.wiai.lspi.chord.data.ID;
+import de.uniba.wiai.lspi.chord.data.URL;
+import de.uniba.wiai.lspi.chord.service.NotifyCallback;
+import de.uniba.wiai.lspi.util.logging.Logger;
 
 import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import de.uniba.wiai.lspi.chord.com.Broadcast;
-import de.uniba.wiai.lspi.chord.com.CommunicationException;
-import de.uniba.wiai.lspi.chord.com.Endpoint;
-import de.uniba.wiai.lspi.chord.com.Entry;
-import de.uniba.wiai.lspi.chord.com.Node;
-import de.uniba.wiai.lspi.chord.com.RefsAndEntries;
-import de.uniba.wiai.lspi.chord.data.ID;
-import de.uniba.wiai.lspi.chord.data.URL;
-import de.uniba.wiai.lspi.chord.service.NotifyCallback;
-import de.uniba.wiai.lspi.util.logging.Logger;
+import static de.uniba.wiai.lspi.util.logging.Logger.LogLevel.DEBUG;
+import static de.uniba.wiai.lspi.util.logging.Logger.LogLevel.INFO;
 
 /**
  * Implements all operations which can be invoked remotely by other nodes.
@@ -437,7 +432,7 @@ public final class NodeImpl extends Node {
 
             // finally inform application
             if (this.notifyCallback != null) {
-                this.notifyCallback.broadcast(info.getSource(), info.getTarget(), info.getHit());
+                this.notifyCallback.broadcast(info);
             }
 
             List<Node> cleanFingerTable = impl.getFingerTable();
@@ -450,7 +445,7 @@ public final class NodeImpl extends Node {
                 }
 
                 Broadcast toSend = new Broadcast(range, info.getSource(), info.getTarget(), info.getTransaction(), info.getHit());
-                this.logger.error("From: " + getNodeID() + " To: " + node.getNodeID());
+                this.logger.debug("From: " + getNodeID() + " To: " + node.getNodeID());
                 this.logger.debug("Send Broadcast: " + toSend.toString());
                 node.broadcast(toSend);
             }

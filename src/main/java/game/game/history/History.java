@@ -13,19 +13,25 @@ import java.util.Map;
  */
 public class History {
     private Map<Integer, Broadcast> broadcasts;
-    private List<Broadcast> broadcastList;
+
+    private Broadcast lastBroadcast;
 
     public History() {
         this.broadcasts = new HashMap<>();
-        this.broadcastList = new ArrayList<>();
+    }
+
+    public Broadcast getLastBroadcast() {
+        return lastBroadcast;
     }
 
     public boolean addEntry(Broadcast broadcast) {
-        if(broadcast.getTransaction() != -1) {
+        boolean added = false;
+        if(broadcasts.get(broadcast.getTransaction()) == null) {
             broadcasts.put(broadcast.getTransaction(), broadcast);
+            lastBroadcast = broadcast;
+            added = true;
         }
-        broadcastList.add(broadcast);
-        return true;
+        return added;
     }
 
     public List<Broadcast> getHistoryForPlayer(ID playerID) {

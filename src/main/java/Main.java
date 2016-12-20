@@ -1,27 +1,38 @@
-import de.uniba.wiai.lspi.chord.com.CommunicationException;
-import de.uniba.wiai.lspi.chord.com.Node;
-import de.uniba.wiai.lspi.chord.data.ID;
 import de.uniba.wiai.lspi.chord.data.URL;
-import de.uniba.wiai.lspi.chord.service.Chord;
+import de.uniba.wiai.lspi.chord.service.PropertiesLoader;
 import de.uniba.wiai.lspi.chord.service.ServiceException;
 import de.uniba.wiai.lspi.chord.service.impl.ChordImpl;
 import de.uniba.wiai.lspi.util.logging.Logger;
+import game.agent.Agent;
+import game.chord.EnemyCrawler;
 import game.chord.NotifyCallbackImpl;
+import game.messaging.Messages;
 
-import java.math.BigInteger;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 
 /**
  * Created by FBeck on 15.12.2016.
  */
 public class Main {
     private static Logger LOG = Logger.getLogger(Main.class);
+    private final static String PROTOCOL = URL.KNOWN_PROTOCOLS.get(URL.SOCKET_PROTOCOL);
+
+    private ChordImpl chord;
+    private EnemyCrawler enemyCrawler;
+    private Agent agent;
+
+    private String urlPart = "localhost";
+    private String lurlPart = "localhost";
+    private int port = 8080;
+    private int lport = 8081;
+
+    private boolean didCOJ;
 
     public static void main(String[] args) {
-        String protocol = URL.KNOWN_PROTOCOLS.get(URL.SOCKET_PROTOCOL);
+       /* String protocol = URL.KNOWN_PROTOCOLS.get(URL.SOCKET_PROTOCOL);
 
         if (args[0].equals("debug")) {
             // Hier Chord etc. initialisieren
@@ -99,7 +110,7 @@ public class Main {
             chord.retrieve(ID.valueOf(i));
             chord.broadcast(ID.valueOf(i),true);
 
-        }
+        }*/
         //else {
 //			URL bootstrapURL;
 //			try {
@@ -126,5 +137,130 @@ public class Main {
 //			}
         //}
 
+        Main main = new Main();
+        main.run();
+    }
+
+    private void run() {
+        build();
+
+        BufferedReader br = null;
+
+        try {
+
+            br = new BufferedReader(new InputStreamReader(System.in));
+            first(br);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ServiceException e) {
+            throw new RuntimeException(" Could not join DHT ! ", e);
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public void build(){
+        PropertiesLoader.loadPropertyFile();
+        chord = new ChordImpl();
+        Messages messages = new Messages();
+        NotifyCallbackImpl notifyCallback = new NotifyCallbackImpl(messages);
+        chord.setCallback(notifyCallback);
+        enemyCrawler = new EnemyCrawler(chord, messages);
+        agent = new Agent(chord, messages);
+    }
+
+    public void start(){
+        agent.initAgent();
+        //enemyCrawler.run();
+        agent.run();
+    }
+
+    private void first(BufferedReader br) throws IOException, ServiceException {
+        System.out.println("What to do:");
+        boolean run = true;
+        while (run) {
+            String input = br.readLine();
+
+            if ("create".equals(input) && !didCOJ) {
+                second(br);
+                URL url = buildURL(urlPart, port);
+                chord.create(url);
+            }
+            if ("join".equals(input) && !didCOJ) {
+                second(br);
+                chord.join(buildURL(lurlPart, lport), buildURL(urlPart, port));
+            }
+            if ("start".equals(input)) {
+                start();
+            }
+
+
+            if ("exit".equals(input)) {
+                System.out.println("Exit!");
+                run = false;
+            }
+        }
+    }
+
+    private void second(BufferedReader br) throws IOException {
+        boolean run = true;
+        System.out.println("url: " + urlPart + " port: " + port);
+        System.out.println("lurl: " + lurlPart + " lport: " + lport);
+        while (run) {
+            String input = br.readLine();
+
+            if ("url".equals(input)) {
+                urlPart = br.readLine();
+                System.out.println("url: " + urlPart);
+            }
+            if ("port".equals(input)) {
+                port = Integer.parseInt(br.readLine());
+                System.out.println("port: " + port);
+            }
+            if ("show".equals(input)) {
+                System.out.println("url: " + urlPart + " port: " + port);
+            }
+
+            if ("lurl".equals(input)) {
+                lurlPart = br.readLine();
+                System.out.println("lurl: " + lurlPart);
+            }
+            if ("lport".equals(input)) {
+                lport = Integer.parseInt(br.readLine());
+                System.out.println("lport: " + lport);
+            }
+            if ("lshow".equals(input)) {
+                System.out.println("lurl: " + lurlPart + " lport: " + lport);
+            }
+
+            if ("exit".equals(input)) {
+                System.out.println("Exit!");
+                run = false;
+            }
+
+            else {
+                lport = lport + Integer.parseInt(input);
+                System.out.println("lurl: " + lurlPart + " lport: " + lport);
+                System.out.println("Exit!");
+                run = false;
+            }
+        }
+    }
+
+    private URL buildURL(String urlPart, int port) {
+        URL url = null;
+        try {
+            url = new URL(PROTOCOL + "://" + urlPart + ":" + port + "/");
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+        return url;
     }
 }

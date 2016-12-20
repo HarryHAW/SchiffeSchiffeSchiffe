@@ -27,20 +27,13 @@
  ***************************************************************************/
 package de.uniba.wiai.lspi.chord.com;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import de.uniba.wiai.lspi.chord.com.local.ThreadEndpoint;
 import de.uniba.wiai.lspi.chord.com.rmi.RMIEndpoint;
 import de.uniba.wiai.lspi.chord.com.socket.SocketEndpoint;
 import de.uniba.wiai.lspi.chord.data.URL;
 import de.uniba.wiai.lspi.util.logging.Logger;
+
+import java.util.*;
 
 /**
  * <p>
@@ -337,7 +330,7 @@ public abstract class Endpoint {
 			}
 			Endpoint endpoint = null;
 
-			// TODO irgendwann über properties lösen
+			//TODO
 			if (url == null) {
 				throw new IllegalArgumentException("Url must not be null! ");
 			}
