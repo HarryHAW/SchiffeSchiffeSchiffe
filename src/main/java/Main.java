@@ -193,16 +193,16 @@ public class Main {
                 URL url = buildURL(urlPart, port);
                 chord.create(url);
             }
-            if ("join".equals(input) && !didCOJ) {
+            else if ("join".equals(input) && !didCOJ) {
                 second(br);
                 chord.join(buildURL(lurlPart, lport), buildURL(urlPart, port));
             }
-            if ("start".equals(input)) {
+            else if ("start".equals(input)) {
                 start();
             }
 
 
-            if ("exit".equals(input)) {
+            else if ("exit".equals(input)) {
                 System.out.println("Exit!");
                 run = false;
             }
@@ -220,27 +220,27 @@ public class Main {
                 urlPart = br.readLine();
                 System.out.println("url: " + urlPart);
             }
-            if ("port".equals(input)) {
+            else if ("port".equals(input)) {
                 port = Integer.parseInt(br.readLine());
                 System.out.println("port: " + port);
             }
-            if ("show".equals(input)) {
+            else if ("show".equals(input)) {
                 System.out.println("url: " + urlPart + " port: " + port);
             }
 
-            if ("lurl".equals(input)) {
+            else if ("lurl".equals(input)) {
                 lurlPart = br.readLine();
                 System.out.println("lurl: " + lurlPart);
             }
-            if ("lport".equals(input)) {
+            else if ("lport".equals(input)) {
                 lport = Integer.parseInt(br.readLine());
                 System.out.println("lport: " + lport);
             }
-            if ("lshow".equals(input)) {
+            else if ("lshow".equals(input)) {
                 System.out.println("lurl: " + lurlPart + " lport: " + lport);
             }
 
-            if ("exit".equals(input)) {
+            else if ("exit".equals(input)) {
                 System.out.println("Exit!");
                 run = false;
             }
