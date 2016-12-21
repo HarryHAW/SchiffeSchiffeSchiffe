@@ -97,12 +97,23 @@ public class Game {
         LOG.info("Player added: " + newPlayer.toString());
     }
 
-    public void insertPlayer(ID newPlayer) {
-        LOG.info("Insert new Player: " + newPlayer);
-        ID player = findSuccesor(newPlayer);
-        addplayer(newPlayer, playerMap.get(player).getPredecessor());
-        addplayer(player, newPlayer);
-        //TODO redo shoots fired
+    public void insertPlayer(ID newPlayerID) {
+        LOG.info("Insert new Player: " + newPlayerID);
+        ID playerID = findSuccesor(newPlayerID);
+        Player player = playerMap.get(playerID);
+        List<Field> shootsOnPlayer = player.getShootAt();
+        addplayer(newPlayerID, player.getPredecessor());
+        addplayer(playerID, newPlayerID);
+        List<Player> players = new ArrayList<>();
+        players.add(playerMap.get(playerID));
+        players.add(playerMap.get(newPlayerID));
+        for (Field field: shootsOnPlayer) {
+            for (Player p: players){
+                if(p.belongsIDToPlayer(field.getShootAt())){
+                    p.addShoot(p.getFieldForID(field.getShootAt()));
+                }
+            }
+        }
         LOG.info("Player after insert: " + this.player.size());
     }
 
@@ -118,14 +129,13 @@ public class Game {
     public void addBroadcast(Broadcast broadcast) {
         LOG.info("Got Broadcast " + broadcast);
         ID source = broadcast.getSource();
-        Broadcast lastBroadcast = history.getLastBroadcast();
         if (history.addEntry(broadcast)) {
             if (playerMap.containsKey(source)) {
                 playerMap.get(source).addBroadcast(broadcast);
             } else {
                 insertPlayer(source);
             }
-            running = determineRunning(lastBroadcast);
+            running = determineRunning();
             if (!running) {
                 finalShoot = broadcast;
             }
@@ -141,13 +151,14 @@ public class Game {
         if (field.isUnknown()) {
             hit = myShips.isShipAt(field.getFieldID());
         }
+        addBroadcast(new Broadcast(this.self, this.self, id, -1, hit));
         return hit;
     }
 
-    public boolean determineRunning(Broadcast lastBroadcast) {
+    public boolean determineRunning() {
         boolean running = true;
         for (Map.Entry<ID, Player> entry : playerMap.entrySet()) {
-            if (!isPlayerAlive(entry.getValue()) && didIShootLast(lastBroadcast)) {
+            if (!isPlayerAlive(entry.getValue()) && didIShootHim(entry.getKey())) {
                 running = !entry.getValue().didIDoLastShoot();
             }
         }
@@ -162,8 +173,10 @@ public class Game {
         return alive;
     }
 
-    public boolean didIShootLast(Broadcast lastBroadcast) {
-        boolean iShootLast = lastBroadcast.getSource().compareTo(self) == 0;
+    public boolean didIShootHim(ID player) {
+        Broadcast destroyingBroadcast = history.getNewestDestroyingBroadcastOfPlayer(player);
+        Broadcast broadcastBevor = history.getBroadcastBevorBroadcast(destroyingBroadcast);
+        boolean iShootLast = broadcastBevor.getSource().compareTo(self) == 0;
         return iShootLast;
     }
 

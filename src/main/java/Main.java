@@ -201,7 +201,6 @@ public class Main {
                 start();
             }
 
-
             else if ("exit".equals(input)) {
                 System.out.println("Exit!");
                 run = false;

@@ -1,6 +1,7 @@
 package game.messaging;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -20,13 +21,14 @@ public class Messages {
             } catch (InterruptedException e) {
             }
         }
-        Message message = messages.get(messages.size() - 1);
-        messages.remove(messages.size() - 1);
+        Message message = messages.get(0);
+        messages.remove(0);
         return message;
     }
 
     public synchronized void put(Message message) {
         messages.add(message);
+        Collections.sort(messages);
         notifyAll();
     }
 }

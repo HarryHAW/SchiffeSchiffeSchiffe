@@ -75,6 +75,10 @@ public class Player {
         return iDidIt;
     }
 
+    public boolean belongsIDToPlayer(ID id){
+        return id.isInInterval(predecessor, player.addPowerOfTwo(0));
+    }
+
     @Override
     public String toString() {
         return "Player{" +
