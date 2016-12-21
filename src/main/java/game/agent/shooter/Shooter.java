@@ -25,7 +25,7 @@ public class Shooter {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        Random random = new Random(System.currentTimeMillis());
+        Random random = new Random(System.nanoTime());
         ID playerID = game.getSelf();
         while(playerID.compareTo(game.getSelf()) == 0) {
             playerID = game.getPlayers().get(random.nextInt(game.getPlayers().size()));
