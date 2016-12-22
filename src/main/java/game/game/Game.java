@@ -6,7 +6,7 @@ import de.uniba.wiai.lspi.util.logging.Logger;
 import game.game.history.History;
 import game.game.player.Player;
 import game.game.player.map.Field;
-import game.game.player.map.MyShips;
+import game.game.ships.MyShips;
 
 import java.math.BigInteger;
 import java.util.*;

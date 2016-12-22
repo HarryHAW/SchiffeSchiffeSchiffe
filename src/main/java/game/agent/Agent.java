@@ -5,7 +5,8 @@ import de.uniba.wiai.lspi.chord.com.Node;
 import de.uniba.wiai.lspi.chord.data.ID;
 import de.uniba.wiai.lspi.chord.service.impl.ChordImpl;
 import de.uniba.wiai.lspi.util.logging.Logger;
-import game.agent.shooter.Shooter;
+import game.agent.scout.Scout;
+import game.agent.scout.ScoutType;
 import game.coap.Coap;
 import game.game.Game;
 import game.messaging.Message;
@@ -13,11 +14,15 @@ import game.messaging.Messages;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by beckf on 17.12.2016.
  */
 public class Agent implements Runnable {
+    public static final ScoutType PLAYERSOUTTYPE = ScoutType.RANDOM;
+    public static final ScoutType FIELDSCOUTTYPE = ScoutType.RANDOM;
+
     private static Logger LOG = Logger.getLogger(Agent.class);
 
     private ChordImpl chord;
@@ -25,7 +30,7 @@ public class Agent implements Runnable {
     private Coap coap;
 
     private Game game;
-    private Shooter shooter;
+    private Scout scout;
 
     public Agent(ChordImpl chord, Messages messages, Coap coap) {
         this.chord = chord;
@@ -33,7 +38,8 @@ public class Agent implements Runnable {
         this.coap = coap;
 
         this.game = new Game();
-        this.shooter = new Shooter(game);
+        Random random = new Random(System.nanoTime());
+        this.scout = new Scout(random, game);
     }
 
     public void initAgent() {
@@ -94,7 +100,7 @@ public class Agent implements Runnable {
     }
 
     private void shoot(){
-        final ID shootAt = shooter.getTarget();
+        final ID shootAt = scout.getTarget();
         LOG.info("Going to shoot at " + shootAt);
         Thread shooter = new Thread(() -> {
             chord.retrieve(shootAt);

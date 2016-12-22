@@ -1,4 +1,4 @@
-package game.game.player.map;
+package game.game.ships;
 
 import game.game.Game;
 
