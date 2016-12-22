@@ -6,8 +6,13 @@ import de.uniba.wiai.lspi.util.logging.Logger;
 import game.agent.Agent;
 import game.chord.EnemyCrawler;
 import game.chord.NotifyCallbackImpl;
+import game.coap.Coap;
 import game.messaging.Messages;
+import org.eclipse.californium.core.CoapClient;
+import org.eclipse.californium.core.CoapResponse;
+import org.eclipse.californium.core.coap.MediaTypeRegistry;
 
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -26,8 +31,13 @@ public class Main {
 
     private String urlPart = "localhost";
     private String lurlPart = "localhost";
-    private int port = 8080;
+    //private String urlPart = "localhost";
+    //private String lurlPart = "localhost";
+    private int port = 8082;
     private int lport = 8081;
+
+    private String coapURL = "localhost";
+    private int coapPort = 5683;
 
     private boolean didCOJ;
 
@@ -142,8 +152,6 @@ public class Main {
     }
 
     private void run() {
-        build();
-
         BufferedReader br = null;
 
         try {
@@ -173,7 +181,8 @@ public class Main {
         NotifyCallbackImpl notifyCallback = new NotifyCallbackImpl(messages);
         chord.setCallback(notifyCallback);
         enemyCrawler = new EnemyCrawler(chord, messages);
-        agent = new Agent(chord, messages);
+        Coap coap = new Coap("coap://" + coapURL + ":" + coapPort + "/led");
+        agent = new Agent(chord, messages, coap);
     }
 
     public void start(){
@@ -191,10 +200,12 @@ public class Main {
             if ("create".equals(input) && !didCOJ) {
                 second(br);
                 URL url = buildURL(urlPart, port);
+                build();
                 chord.create(url);
             }
             else if ("join".equals(input) && !didCOJ) {
                 second(br);
+                build();
                 chord.join(buildURL(lurlPart, lport), buildURL(urlPart, port));
             }
             else if ("start".equals(input)) {
@@ -237,6 +248,10 @@ public class Main {
             }
             else if ("lshow".equals(input)) {
                 System.out.println("lurl: " + lurlPart + " lport: " + lport);
+            }
+            else if ("cport".equals(input)) {
+                coapPort = Integer.parseInt(br.readLine());
+                System.out.println("coapPort: " + coapPort);
             }
 
             else if ("exit".equals(input)) {

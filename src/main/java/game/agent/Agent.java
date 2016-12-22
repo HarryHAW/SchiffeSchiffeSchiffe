@@ -6,6 +6,7 @@ import de.uniba.wiai.lspi.chord.data.ID;
 import de.uniba.wiai.lspi.chord.service.impl.ChordImpl;
 import de.uniba.wiai.lspi.util.logging.Logger;
 import game.agent.shooter.Shooter;
+import game.coap.Coap;
 import game.game.Game;
 import game.messaging.Message;
 import game.messaging.Messages;
@@ -21,14 +22,15 @@ public class Agent implements Runnable {
 
     private ChordImpl chord;
     private Messages messages;
+    private Coap coap;
 
     private Game game;
     private Shooter shooter;
 
-    public Agent(ChordImpl chord, Messages messages) {
+    public Agent(ChordImpl chord, Messages messages, Coap coap) {
         this.chord = chord;
-
         this.messages = messages;
+        this.coap = coap;
 
         this.game = new Game();
         this.shooter = new Shooter(game);
@@ -47,6 +49,7 @@ public class Agent implements Runnable {
         }
 
         game.initGame(self, predecessor, fingerTable);
+        coap.changeColorTo(Coap.GREEN);
     }
 
     @Override
@@ -58,6 +61,16 @@ public class Agent implements Runnable {
             Message message = messages.get();
             if (message.message() == Message.RETRIEVE) {
                 broadcast(message.getRetrieve());
+                //TODO
+                if(game.getOwnShips() < Game.SHIPS/2){
+                    coap.changeColorTo(Coap.BLUE);
+                }
+                else if(game.getOwnShips() < Game.SHIPS){
+                    coap.changeColorTo(Coap.VIOLET);
+                }
+                else {
+                    coap.changeColorTo(Coap.RED);
+                }
                 shoot();
             } else if (message.message() == Message.BROADCAST) {
                 game.addBroadcast(message.getBroadcast());

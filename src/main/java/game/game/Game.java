@@ -43,6 +43,10 @@ public class Game {
         return self;
     }
 
+    public int getOwnShips(){
+        return playerMap.get(self).getShip();
+    }
+
     public List<ID> getPlayers() {
         return player;
     }
@@ -148,6 +152,9 @@ public class Game {
         Player self = playerMap.get(this.self);
         Field field = self.getFieldForID(id);
         LOG.debug("GotShootAt found this Field: " + field);
+        if(field == null){
+            System.out.println("...");
+        }
         if (field.isUnknown()) {
             hit = myShips.isShipAt(field.getFieldID());
         }
