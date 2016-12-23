@@ -6,6 +6,7 @@ import de.uniba.wiai.lspi.util.logging.Logger;
 import game.game.history.History;
 import game.game.player.Player;
 import game.game.player.map.Field;
+import game.game.ships.DistributionType;
 import game.game.ships.MyShips;
 
 import java.math.BigInteger;
@@ -15,12 +16,14 @@ import java.util.*;
  * Created by beckf on 17.12.2016.
  */
 public class Game {
-    private static Logger LOG = Logger.getLogger(Game.class);
-
     public static final ID MIN_ID = ID.valueOf(BigInteger.ZERO);
     public static final ID MAX_ID = ID.valueOf(BigInteger.valueOf(2).pow(160).subtract(BigInteger.ONE));
-    public static final int FIELDS = 100;
-    public static final int SHIPS = 10;
+
+    private static Logger LOG = Logger.getLogger(Game.class);
+    public static int FIELDS = 100;
+    public static int SHIPS = 10;
+    public static DistributionType SHIPDISTRIBUTION = DistributionType.LINEAR;
+
 
     private Map<ID, Player> playerMap;
     private History history;
@@ -131,7 +134,7 @@ public class Game {
     }
 
     public void addBroadcast(Broadcast broadcast) {
-        LOG.info("Got Broadcast " + broadcast);
+        LOG.debug("Got Broadcast " + broadcast);
         ID source = broadcast.getSource();
         if (history.addEntry(broadcast)) {
             if (playerMap.containsKey(source)) {
@@ -152,9 +155,6 @@ public class Game {
         Player self = playerMap.get(this.self);
         Field field = self.getFieldForID(id);
         LOG.debug("GotShootAt found this Field: " + field);
-        if(field == null){
-            System.out.println("...");
-        }
         if (field.isUnknown()) {
             hit = myShips.isShipAt(field.getFieldID());
         }

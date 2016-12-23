@@ -65,7 +65,7 @@ public class GameMap {
         unknown--;
         ship++;
         lastShip = field;
-        LOG.info("Unknown: " + unknown + " Ships: " + ship + " Water: " + water);
+        LOG.debug("Unknown: " + unknown + " Ships: " + ship + " Water: " + water);
 
     }
 
@@ -115,7 +115,7 @@ public class GameMap {
                 field.toShip();
                 addShip(field);
             } else {
-                LOG.info("Missed at " + broadcast.getTarget() + " of Player " + broadcast.getSource());
+                LOG.debug("Missed at " + broadcast.getTarget() + " of Player " + broadcast.getSource());
                 field.toWater();
                 addWater();
             }

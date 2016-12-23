@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <property name="hibernate.current_session_context_class">thread</property>
+        <property name="hibernate.ogm.datastore.provider">infinispan</property>
+        <property name="hibernate.ogm.mongodb.database">test</property>
+        <property name="hibernate.ogm.mongodb.host">hostname</property>
+        <property name="hibernate.ogm.mongodb.port">27017</property>
+        <property name="hibernate.ogm.mongodb.username" >user</property>
+        <property name="hibernate.ogm.mongodb.password" >pwd</property>
+        <property name="hibernate.search.default.directory_provider">filesystem</property>
+        <property name="hibernate.search.default.indexBase">./Indexes</property>
+        <property name="hibernate.search.default.locking_strategy">single</property>
+
+
+    </session-factory>
+</hibernate-configuration>

@@ -5,9 +5,12 @@ package learn.algorithm.qLearning;
  */
 public interface State {
 
+    double getBestActionValue();
     int getAction(Policy policy, double explorationRate);
     State takeAction(int action);
 
-    void updateAction(double reward, State state);
+    void updateAction(int action, double reward, double bestActionValue, double alpha, double gamma);
     boolean isFinal();
+
+    double getReward(State subsequentState);
 }

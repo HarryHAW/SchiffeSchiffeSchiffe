@@ -48,6 +48,10 @@ public class Field {
         return fieldType == FieldType.WATER;
     }
 
+    public boolean isShip(){
+        return fieldType == FieldType.SHIP;
+    }
+
     public void toWater(){
         fieldType = FieldType.WATER;
     }
