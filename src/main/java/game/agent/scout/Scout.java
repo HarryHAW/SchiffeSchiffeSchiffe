@@ -4,6 +4,8 @@ import de.uniba.wiai.lspi.chord.data.ID;
 import game.agent.Agent;
 import game.agent.scout.implementations.RandomFieldScout;
 import game.agent.scout.implementations.RandomPlayerScout;
+import game.agent.scout.implementations.StrategicFieldScout;
+import game.agent.scout.implementations.StrategicPlayerScout;
 import game.game.Game;
 import game.game.player.map.Field;
 
@@ -29,11 +31,11 @@ public class Scout {
 
     private void determinScouts(){
         if(Agent.PLAYERSOUTTYPE == ScoutType.RANDOM){
-            playerScout = new RandomPlayerScout(random, game);
+            playerScout = new StrategicPlayerScout(random, game);
         }
 
         if(Agent.FIELDSCOUTTYPE == ScoutType.RANDOM){
-            fieldScout = new RandomFieldScout(random, game);
+            fieldScout = new StrategicFieldScout(random, game);
         }
     }
 

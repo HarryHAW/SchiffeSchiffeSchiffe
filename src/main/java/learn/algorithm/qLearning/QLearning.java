@@ -19,7 +19,8 @@ public class QLearning {
     // https://webdocs.cs.ualberta.ca/~sutton/book/ebook/node65.html
     public void algorithm(State state) {
         while (!state.isFinal()) {
-            int i = state.getAction(policy);
+           //TODO explorationRate is set Randomly!
+            int i = state.getAction(policy, 2);
             State subsequentState = state.takeAction(i);
             double reward = rewarder.getReward(state, subsequentState);
             state.updateAction(reward, subsequentState);
