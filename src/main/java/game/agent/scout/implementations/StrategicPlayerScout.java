@@ -1,14 +1,18 @@
 package game.agent.scout.implementations;
 
+import de.uniba.wiai.lspi.chord.com.Broadcast;
 import de.uniba.wiai.lspi.chord.data.ID;
+import de.uniba.wiai.lspi.util.logging.Logger;
+import game.agent.Agent;
 import game.agent.scout.PlayerScout;
 import game.game.Game;
 
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Random;
+import java.util.*;
+
+import game.game.history.History;
 import game.game.player.Player;
+import sun.rmi.runtime.Log;
 
 /**
  * Created by admin on 22.12.2016.
@@ -16,7 +20,11 @@ import game.game.player.Player;
 public class StrategicPlayerScout implements PlayerScout {
     private Random random;
     private Game game;
-    private final Integer criticalAmountOfUnknownFields = 10;
+    private final static Integer criticalAmountOfUnknownFields = 10;
+    private final static Integer criticalAmountOfShotsFired = 8;
+    private final static Double criticalRateOfShotsFiredAtUs = 0.75;
+
+    private static Logger LOG = Logger.getLogger(StrategicPlayerScout.class);
 
     public StrategicPlayerScout(Random random, Game game) {
         this.random = random;
@@ -31,12 +39,14 @@ public class StrategicPlayerScout implements PlayerScout {
         List<Player> tmpPlayerList = new ArrayList<Player>();
         List<Player> primaryTargets = new ArrayList<Player>();
         Integer tmpAmountShips = Game.SHIPS;
+        Map<Player, Double> playerWhotargetedUsAtHighRate = new HashMap<Player, Double>();
 
         Player tmpPlayer;
         //iterate over all Players
         for(int i =0; i < tmpPlayerList.size(); i++){
+            LOG.info("Iterating in PlayerScout " + i);
             tmpPlayer = game.getPlayer(tmpPlayerIDList.get(i));
-            if(tmpPlayer == game.getPlayer(game.getSelf())){
+            if(tmpPlayer != game.getPlayer(game.getSelf())){
                 tmpPlayerList.add(tmpPlayer);
                 // Player with all Ships hit
                 if(tmpPlayer.getShip() == Game.SHIPS){
@@ -51,6 +61,18 @@ public class StrategicPlayerScout implements PlayerScout {
                     tmpAmountShips = tmpPlayer.getShip();
                     playerIDFewestShiphits = tmpPlayer.getPlayer();
                 }
+                //get target history from Player
+                List<Broadcast> tmpBroadcastHistory = game.getHistoryForPlayer(tmpPlayer.getPlayer());
+                Integer tmpTargetCounter = 0;
+                for (int j = 0; i < tmpBroadcastHistory.size() ; i++){
+                    if(tmpBroadcastHistory.get(j).getTarget() == game.getSelf()){
+                        tmpTargetCounter++;
+                    }
+                }
+                if((tmpBroadcastHistory.size() > criticalAmountOfShotsFired) && (criticalRateOfShotsFiredAtUs <= (Double.valueOf(tmpTargetCounter) / tmpBroadcastHistory.size()))){
+                    playerWhotargetedUsAtHighRate.put(tmpPlayer,(Double.valueOf(tmpTargetCounter) / tmpBroadcastHistory.size()));
+                }
+
             }
         }
         //If only one primaryTarget found, choose as target
@@ -70,12 +92,17 @@ public class StrategicPlayerScout implements PlayerScout {
         // No primaryTarget Found ==> Secondary strategy
 
         // If there is a player who targets always us, choose him. If our status is better.
-        else if(false){ // TODO activate
-            // determine player who always targets us
-                //TODO
-
-            //Is our status better than this player? if yes, choose him
-            if(isOurStatusBetterThan(tmpPlayer)){
+        else if(playerWhotargetedUsAtHighRate.size() >= 0){
+            // determine player who always targets us at most
+            tmpPlayer = game.getPlayer(game.getSelf());
+            double tmpRate = 0;
+            for(Player p : playerWhotargetedUsAtHighRate.keySet()){
+                if(tmpRate < playerWhotargetedUsAtHighRate.get(p) && isOurStatusBetterThan(p)){
+                    tmpRate = playerWhotargetedUsAtHighRate.get(p);
+                    tmpPlayer = p;
+                }
+            }
+            if(tmpPlayer != game.getPlayer(game.getSelf())){
                 playerID = tmpPlayer.getPlayer();
             }
         }
@@ -85,8 +112,13 @@ public class StrategicPlayerScout implements PlayerScout {
         }
         // nothing found? ==> random
         if (playerID.compareTo(game.getSelf()) == 0){
-            while(playerID.compareTo(game.getSelf()) == 0) {
-                playerID = game.getPlayers().get(random.nextInt(game.getPlayers().size()));
+            if(playerIDFewestShiphits.compareTo(game.getSelf()) != 0){
+                playerID = playerIDFewestShiphits;
+            }
+            else {
+                while (playerID.compareTo(game.getSelf()) == 0) {
+                    playerID = game.getPlayers().get(random.nextInt(game.getPlayers().size()));
+                }
             }
         }
         return playerID;

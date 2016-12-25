@@ -22,13 +22,13 @@ public class Coap {
     }
 
     public void changeColorTo(String color){
-        CoapResponse response = coapClient.put(OFF, MediaTypeRegistry.TEXT_PLAIN);
         if(COLORSTATE != color) {
+      //  CoapResponse response = coapClient.put(OFF, MediaTypeRegistry.TEXT_PLAIN);
             if (color == VIOLET) {
-                response = coapClient.put(BLUE, MediaTypeRegistry.TEXT_PLAIN);
-                response = coapClient.put(RED, MediaTypeRegistry.TEXT_PLAIN);
+                coapClient.put(BLUE, MediaTypeRegistry.TEXT_PLAIN);
+                coapClient.put(RED, MediaTypeRegistry.TEXT_PLAIN);
             } else {
-                response = coapClient.put(color, MediaTypeRegistry.TEXT_PLAIN);
+                coapClient.put(color, MediaTypeRegistry.TEXT_PLAIN);
             }
             COLORSTATE = color;
         }
