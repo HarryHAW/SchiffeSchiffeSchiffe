@@ -58,6 +58,8 @@ public class Game {
         return playerMap.get(id);
     }
 
+    public List<Broadcast> getHistoryForPlayer(ID player) {return history.getHistoryForPlayer(player);}
+
     public boolean isRunning() {
         return running;
     }
