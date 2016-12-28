@@ -2,11 +2,17 @@ package learn.shoot;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.mongodb.DB;
+import com.mongodb.MongoClient;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 import de.uniba.wiai.lspi.chord.data.ID;
 import game.game.Game;
 import game.game.player.Player;
 import game.game.player.map.Field;
 import learn.algorithm.qLearning.QLearning;
+import org.bson.Document;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,22 +35,33 @@ public class ShootEnvironment {
     private Gson gson;
     private Random random;
 
-    private Map<String, ShootState> shootStates;
-
     private Game game;
 
     private List<Integer> unknown;
     private List<Integer> ships;
     private List<Integer> water;
 
-    public ShootEnvironment(Map<String, ShootState> shootStates){
+    MongoCollection<Document> collection;
+
+    public ShootEnvironment() {
         this.gson = new Gson();
         this.random = new Random(System.nanoTime());
         this.game = new Game();
         this.unknown = new ArrayList<>();
         this.ships = new ArrayList<>();
         this.water = new ArrayList<>();
-        initiateShootEnvironment(shootStates);
+        initiateShootEnvironment();
+    }
+
+    public ShootEnvironment(MongoCollection<Document> collection) {
+        this.gson = new Gson();
+        this.random = new Random(System.nanoTime());
+        this.game = new Game();
+        this.unknown = new ArrayList<>();
+        this.ships = new ArrayList<>();
+        this.water = new ArrayList<>();
+        this.collection = collection;
+        initiateShootEnvironment();
     }
 
     public List<Integer> getUnknown() {
@@ -57,10 +74,6 @@ public class ShootEnvironment {
 
     public List<Integer> getWater() {
         return water;
-    }
-
-    public Map<String, ShootState> getShootStates() {
-        return shootStates;
     }
 
     public void setUnknown(List<Integer> unknown) {
@@ -80,35 +93,17 @@ public class ShootEnvironment {
         byte[] data = new byte[len / 2];
         for (int i = 0; i < len; i += 2) {
             data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
-                    + Character.digit(s.charAt(i+1), 16));
+                    + Character.digit(s.charAt(i + 1), 16));
         }
         return data;
     }
 
-    public void initiateShootEnvironment(Map<String, ShootState> shootStates) {
-        String str = "";
-        try
-        {
-            File file = new File(FILE);
-            // Open an input stream
-            FileInputStream fis = new FileInputStream(file);
-            byte[] data = new byte[(int) file.length()];
-            fis.read(data);
-            fis.close();
-            str = new String(data, "UTF-8");
+    public void initiateShootEnvironment() {
+        if (collection == null) {
+            MongoClient mongo = new MongoClient("localhost", 27017);
+            MongoDatabase db = mongo.getDatabase("schiffe");
+            collection = db.getCollection("scout");
         }
-        // Catches any error conditions
-        catch (IOException e)
-        {
-            System.err.println ("Unable to read from file");
-            System.exit(-1);
-        }
-
-
-        //shootStates = gson
-        Type listTypeStations = new TypeToken<Map<String, ShootState>>(){}.getType();
-        //shootStates = gson.fromJson(str, listTypeStations);
-        this.shootStates = shootStates;
 
         byte[] one = hexStringToByteArray("49FD2733CFA85F4FEFED99204F9A126549397A79");
         BigInteger two = new BigInteger(one);
@@ -116,22 +111,26 @@ public class ShootEnvironment {
         game.initGame(id, id, new ArrayList<>());
     }
 
-    public void run(){
+    public void run() {
         Player player = game.getPlayer(game.getSelf());
 
         List<Integer> unknown = new ArrayList<>();
         List<Integer> ships = new ArrayList<>();
 
-        for (Field fields: player.getFields()) {
-            if(fields.isUnknown()){
+        for (Field fields : player.getFields()) {
+            if (fields.isUnknown()) {
                 unknown.add(fields.getFieldID());
-            }
-            else if(fields.isShip()){
+            } else if (fields.isShip()) {
                 ships.add(fields.getFieldID());
             }
         }
 
-        ShootState shootState = ShootState.generateNewShootState(unknown, ships);
+        String id = ShootState.toID(unknown, ships);
+        ShootState shootState = getShootState(id);
+        if (shootState == null) {
+            createShootState(ShootState.generateNewShootState(unknown, ships));
+            shootState = getShootState(id);
+        }
         shootState.setShootEnvironment(this);
         shootState.setUnknown(unknown);
         shootState.setShips(ships);
@@ -144,25 +143,7 @@ public class ShootEnvironment {
         //System.out.println("Ship: " + game.getPlayer(game.getSelf()).getShip() + " Unknown: " + game.getPlayer(game.getSelf()).getUnknown() + " Water: " + game.getPlayer(game.getSelf()).getWater());
     }
 
-    public void save(){
-        String str = gson.toJson(shootStates);
-        try
-        {
-            File file = new File(FILE);
-            // Open an input stream
-            FileOutputStream fou = new FileOutputStream(file);
-            fou.write(str.getBytes());
-            fou.close();
-        }
-        // Catches any error conditions
-        catch (IOException e)
-        {
-            System.err.println ("Unable to read from file");
-            System.exit(-1);
-        }
-    }
-
-    public double getRandomDouble(){
+    public double getRandomDouble() {
         double value = 0;
         for (int i = 0; i < RANDOMRUNS; i++) {
             value = value + random.nextDouble();
@@ -171,11 +152,11 @@ public class ShootEnvironment {
         return value;
     }
 
-    public int getRandomInteger(int bound){
+    public int getRandomInteger(int bound) {
         return random.nextInt(bound);
     }
 
-    public ShootState shootAt(int field){
+    public ShootState shootAt(int field) {
         Player player = game.getPlayer(game.getSelf());
         Field field1 = player.getFields().get(field);
         ID shoot = field1.getShootAt();
@@ -185,58 +166,94 @@ public class ShootEnvironment {
         List<Integer> unknown = new ArrayList<>();
         List<Integer> ships = new ArrayList<>();
 
-        for (Field fields: player.getFields()) {
-            if(fields.isUnknown()){
+        for (Field fields : player.getFields()) {
+            if (fields.isUnknown()) {
                 unknown.add(fields.getFieldID());
-            }
-            else if(fields.isShip()){
+            } else if (fields.isShip()) {
                 ships.add(fields.getFieldID());
             }
         }
 
         String id = ShootState.toID(unknown, ships);
-        if(!shootStates.containsKey(id)){
-             shootStates.put(id, ShootState.generateNewShootState(unknown, ships));
+        ShootState shootState = getShootState(id);
+
+        if (shootState == null) {
+            createShootState(ShootState.generateNewShootState(unknown, ships));
+            shootState = getShootState(id);
         }
-        ShootState shootState = shootStates.get(id);
         shootState.setShootEnvironment(this);
         shootState.setUnknown(unknown);
         shootState.setShips(ships);
         return shootState;
     }
 
+    public ShootState getShootState(String shootStateID) {
+        Document query = new Document();
+        query.put("id", shootStateID);
+
+        FindIterable<Document> found = collection.find(query);
+        Document foundDocument = found.first();
+        ShootState state = null;
+        if (foundDocument != null) {
+            state = gson.fromJson(foundDocument.getString("json"), ShootState.class);
+        }
+        return state;
+    }
+
+    public void createShootState(ShootState shootState) {
+        Document document = new Document();
+        document.put("id", shootState.toID());
+        document.put("json", gson.toJson(shootState));
+
+        collection.insertOne(document);
+    }
+
+    public void updateShootState(ShootState shootState) {
+        Document query = new Document();
+        query.put("id", shootState.toID());
+
+        Document update = new Document();
+        update.put("$set", new Document().append("json", gson.toJson(shootState)));
+
+        collection.updateOne(query, update);
+    }
+
     public static void main(String[] args) {
-        Map<String, ShootState> shootStates = new HashMap<>();
-        List<Integer> w = new ArrayList<>();
-        List<Integer> u = new ArrayList<>();
-        List<Integer> s = new ArrayList<>();
-        for(int i = 0; i < 100000; i++) {
-            ShootEnvironment shootEnvironment = new ShootEnvironment(shootStates);
+        MongoClient mongo = new MongoClient("localhost", 27017);
+        MongoDatabase db = mongo.getDatabase("schiffe");
+        MongoCollection<Document> collection = db.getCollection("scout");
+        //List<Integer> w = new ArrayList<>();
+        //List<Integer> u = new ArrayList<>();
+        //List<Integer> s = new ArrayList<>();
+        //for (int i = 0; i < 100000; i++) {
+        int i = 0;
+        while (true) {
+            ShootEnvironment shootEnvironment = new ShootEnvironment(collection);
             shootEnvironment.run();
-            shootStates = shootEnvironment.getShootStates();
             //shootEnvironment.save();
-            if(i%100 == 0){
+            if (i % 100 == 0) {
                 int water = addList(shootEnvironment.getWater()) / shootEnvironment.getWater().size();
                 int unknwon = addList(shootEnvironment.getUnknown()) / shootEnvironment.getUnknown().size();
                 int ships = addList(shootEnvironment.getShips()) / shootEnvironment.getShips().size();
                 shootEnvironment.setWater(new ArrayList<>());
                 shootEnvironment.setShips(new ArrayList<>());
                 shootEnvironment.setUnknown(new ArrayList<>());
-                w.add(water);
-                u.add(unknwon);
-                s.add(ships);
+                //w.add(water);
+                //u.add(unknwon);
+                //s.add(ships);
                 System.out.println("%%%%Ship: " + ships + " Unknown: " + unknwon + " Water: " + water);
             }
+            i++;
         }
-        int water = addList(w) / w.size();
-        int unknwon = addList(u) / u.size();
-        int ships = addList(s) / s.size();
-        System.out.println("%%%%%%%%Ship: " + ships + " Unknown: " + unknwon + " Water: " + water);
+        //int water = addList(w) / w.size();
+        //int unknwon = addList(u) / u.size();
+        //int ships = addList(s) / s.size();
+        //System.out.println("%%%%%%%%Ship: " + ships + " Unknown: " + unknwon + " Water: " + water);
     }
 
-    public static int addList(List<Integer> list){
+    public static int addList(List<Integer> list) {
         int x = 0;
-        for (Integer integer: list) {
+        for (Integer integer : list) {
             x = x + integer;
         }
         return x;

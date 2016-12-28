@@ -10,6 +10,7 @@ import java.util.*;
  * Created by beckf on 22.12.2016.
  */
 public class ShootState implements State {
+
     private transient ShootEnvironment shootEnvironment;
 
     private transient List<Integer> unknown;
@@ -19,9 +20,12 @@ public class ShootState implements State {
     private List<Integer> bestActions;
     private double bestActionValue;
 
+    public ShootState() {
+    }
+
     private ShootState(List<Integer> unknown,
-                      List<Integer> ships, Map<Integer, Double> actions,
-                      List<Integer> bestActions, double bestActionValue) {
+                       List<Integer> ships, Map<Integer, Double> actions,
+                       List<Integer> bestActions, double bestActionValue) {
         this.shootEnvironment = shootEnvironment;
         this.unknown = unknown;
         this.ships = ships;
@@ -85,24 +89,26 @@ public class ShootState implements State {
         double actionValue = actions.get(action) + alpha * (reward + gamma * bestActionValue - actions.get(action));
 
         actions.put(action, actionValue);
-        if (this.bestActionValue < actionValue) {
-            for (Map.Entry<Integer, Double> entry: actions.entrySet()) {
-                if(entry.getValue() == this.bestActionValue){
+        if (bestActions.contains(action)) {
+            this.bestActionValue = Double.NEGATIVE_INFINITY;
+            for (Map.Entry<Integer, Double> entry : actions.entrySet()) {
+                if (entry.getValue() == this.bestActionValue) {
                     this.bestActions.add(entry.getKey());
-                }
-                else if(entry.getValue() > this.bestActionValue){
+                } else if (entry.getValue() > this.bestActionValue) {
                     this.bestActions = new ArrayList<>();
                     this.bestActions.add(entry.getKey());
                     this.bestActionValue = entry.getValue();
                 }
             }
         }
+
+        shootEnvironment.updateShootState(this);
     }
 
     @Override
     public boolean isFinal() {
         boolean isFinal = false;
-        if(ships.size() == Game.SHIPS){
+        if (ships.size() == Game.SHIPS) {
             isFinal = true;
         }
         return isFinal;
@@ -112,18 +118,15 @@ public class ShootState implements State {
     public double getReward(State subsequentState) {
         ShootState shootState = (ShootState) subsequentState;
         double reward = -2;
-        if(unknown.size() < shootState.getUnknown().size()){
-            if(ships.size() > shootState.getShips().size()){
-                reward = 20;
-            }
-            else {
-                reward = -1;
+        if (unknown.size() > shootState.getUnknown().size()) {
+            if (ships.size() < shootState.getShips().size()) {
+                reward = 5;
             }
         }
         return reward;
     }
 
-    public String toID(){
+    public String toID() {
         return toID(unknown, ships);
     }
 
@@ -135,24 +138,23 @@ public class ShootState implements State {
                 id = id + "0";
             } else if (ships.contains(i)) {
                 id = id + "1";
-            }
-            else {
+            } else {
                 id = id + "2";
             }
         }
         return id;
     }
 
-    public static ShootState generateNewShootState(List<Integer> unknown, List<Integer> ships){
+    public static ShootState generateNewShootState(List<Integer> unknown, List<Integer> ships) {
         Map<Integer, Double> actions = new HashMap<>();
 
-        for (Integer i:unknown) {
+        for (Integer i : unknown) {
             actions.put(i, 0.0);
         }
 
         double bestValue = 0.0;
         int i = 0;
-        if(!unknown.isEmpty()){
+        if (!unknown.isEmpty()) {
             i = unknown.get(0);
         }
 

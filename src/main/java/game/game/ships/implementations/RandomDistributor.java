@@ -18,7 +18,7 @@ public class RandomDistributor implements Distributor {
     @Override
     public Map<Integer, Boolean> distributeShips() {
         Map<Integer, Boolean> shipAt = new HashMap<>();
-        Random random = new Random();
+        Random random = new Random(System.nanoTime());
 
         while (shipAt.size() < Game.SHIPS) {
             int position = random.nextInt(Game.FIELDS);
