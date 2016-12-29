@@ -16,13 +16,22 @@ public class LinearDistributor implements Distributor {
 
     @Override
     public Map<Integer, Boolean> distributeShips() {
-        Random random = new Random(System.nanoTime());
-        int start = random.nextInt(90);
+        int start = Game.RANDOM.nextInt(Game.FIELDS);
 
         Map<Integer, Boolean> shipAt = new HashMap<>();
-        for(int i = 0; i < Game.SHIPS; i++){
-            shipAt.put(start++, true);
-        }
+        shipAt.putAll(distributeNumberOfShipsStartingAt(Game.SHIPS, start));
         return shipAt;
+    }
+
+    public static Map<Integer, Boolean> distributeNumberOfShipsStartingAt(int number, int start){
+        if(Game.FIELDS - start < number){
+            start = Game.FIELDS - number;
+        }
+
+        Map<Integer, Boolean> distribution = new HashMap<>();
+        for(int i = 0; i < number; i++){
+            distribution.put(start++, true);
+        }
+        return distribution;
     }
 }

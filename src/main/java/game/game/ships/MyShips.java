@@ -1,8 +1,10 @@
 package game.game.ships;
 
 import game.game.Game;
+import game.game.ships.implementations.ClusterDistributor;
 import game.game.ships.implementations.LinearDistributor;
 import game.game.ships.implementations.RandomDistributor;
+import game.game.ships.implementations.StratgicDistributor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +25,12 @@ public class MyShips {
         if(Game.SHIPDISTRIBUTION == DistributionType.LINEAR){
             distributor = new LinearDistributor();
         }
-
+        else if(Game.SHIPDISTRIBUTION == DistributionType.CLUSTER){
+            distributor = new ClusterDistributor();
+        }
+        else if(Game.SHIPDISTRIBUTION == DistributionType.STRATEGIC){
+            distributor = new StratgicDistributor();
+        }
         shipAt = distributor.distributeShips();
     }
 

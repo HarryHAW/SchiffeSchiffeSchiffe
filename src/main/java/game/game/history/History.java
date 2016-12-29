@@ -62,9 +62,6 @@ public class History {
         Broadcast broadcast = lastBroadcast;
         while (broadcast.getSource().compareTo(playerID) != 0 && broadcast.getHit() != true){
             broadcast = getBroadcastBevorBroadcast(broadcast);
-            if(broadcast == null){
-                System.out.println("ds");
-            }
         }
         return broadcast;
     }

@@ -19,11 +19,12 @@ import java.util.*;
 public class Game {
     public static final ID MIN_ID = ID.valueOf(BigInteger.ZERO);
     public static final ID MAX_ID = ID.valueOf(BigInteger.valueOf(2).pow(160).subtract(BigInteger.ONE));
+    public static final Random RANDOM = new Random(System.nanoTime());
 
     private static Logger LOG = Logger.getLogger(Game.class);
     public static int FIELDS = 100;
     public static int SHIPS = 10;
-    public static DistributionType SHIPDISTRIBUTION = DistributionType.RANDOM;
+    public static DistributionType SHIPDISTRIBUTION = DistributionType.STRATEGIC;
 
 
     private Map<ID, Player> playerMap;

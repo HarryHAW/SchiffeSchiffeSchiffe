@@ -12,6 +12,8 @@ import java.util.Random;
  * Created by admin on 22.12.2016.
  */
 public class StrategicFieldScout implements FieldScout {
+    public static final int CLUSTERSIZE = 15;
+
     private Random random;
     private Game game;
 
@@ -30,4 +32,6 @@ public class StrategicFieldScout implements FieldScout {
         }
         return field;
     }
+
+    //public static
 }

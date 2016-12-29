@@ -71,9 +71,9 @@ public class ShootState implements State {
     public int getAction(Policy policy, double explorationRate) {
         Collections.shuffle(bestActions);
         int action = bestActions.get(0);
-        double random = shootEnvironment.getRandomDouble();
+        double random = Game.RANDOM.nextDouble();
         if (random <= explorationRate) {
-            int ran = shootEnvironment.getRandomInteger(unknown.size());
+            int ran = Game.RANDOM.nextInt(unknown.size());
             action = unknown.get(ran);
         }
         return action;

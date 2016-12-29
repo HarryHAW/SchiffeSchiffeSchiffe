@@ -20,14 +20,20 @@ public class RandomDistributor implements Distributor {
         Map<Integer, Boolean> shipAt = new HashMap<>();
         Random random = new Random(System.nanoTime());
 
-        while (shipAt.size() < Game.SHIPS) {
-            int position = random.nextInt(Game.FIELDS);
-            while (MyShips.isShipAt(shipAt, position)) {
-                position = random.nextInt(Game.FIELDS);
-            }
-            shipAt.put(position, true);
-        }
+        shipAt.putAll(distributeNumberOfShips(Game.SHIPS));
 
         return shipAt;
+    }
+
+    public static Map<Integer, Boolean> distributeNumberOfShips(int number){
+        Map<Integer, Boolean> distribution = new HashMap<>();
+        for(int i = 0; i < number; i++){
+            int toAdd = Game.RANDOM.nextInt(Game.FIELDS);
+            while(distribution.containsKey(toAdd)){
+                toAdd = Game.RANDOM.nextInt(Game.FIELDS);
+            }
+            distribution.put(toAdd, true);
+        }
+        return distribution;
     }
 }
