@@ -50,7 +50,7 @@ public class Scout {
 
         ID playerID = playerScout.getTarget();
         Field field = fieldScout.getTarget(playerID);
-        game.addShootOnPlayer(playerID, field);
+        //game.addShootOnPlayer(playerID, field);
         return field.getShootAt();
     }
 }

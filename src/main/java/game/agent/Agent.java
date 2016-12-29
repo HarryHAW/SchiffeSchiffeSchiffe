@@ -9,6 +9,7 @@ import game.agent.scout.Scout;
 import game.agent.scout.ScoutType;
 import game.coap.Coap;
 import game.game.Game;
+import game.game.player.statistics.Shoot;
 import game.messaging.Message;
 import game.messaging.Messages;
 
@@ -31,6 +32,8 @@ public class Agent implements Runnable {
 
     private Game game;
     private Scout scout;
+
+    private boolean running;
 
     public Agent(ChordImpl chord, Messages messages, Coap coap) {
         this.chord = chord;
@@ -56,6 +59,9 @@ public class Agent implements Runnable {
 
         game.initGame(self, predecessor, fingerTable);
         coap.changeColorTo(Coap.GREEN);
+
+        running = true;
+        LOG.info("Running is: " + running);
     }
 
     @Override
@@ -63,30 +69,21 @@ public class Agent implements Runnable {
         if(game.determineIfFirst()){
             shoot();
         }
-        while (game.isRunning()) {
+        while (running) {
             Message message = messages.get();
             if (message.message() == Message.RETRIEVE) {
                 broadcast(message.getRetrieve());
                 //TODO
-                if(game.getOwnShips() < Game.SHIPS/2){
-                    coap.changeColorTo(Coap.BLUE);
-                }
-                else if(game.getOwnShips() < Game.SHIPS){
-                    coap.changeColorTo(Coap.VIOLET);
-                }
-                else {
-                    coap.changeColorTo(Coap.RED);
-                }
+                coap();
                 shoot();
             } else if (message.message() == Message.BROADCAST) {
                 game.addBroadcast(message.getBroadcast());
             } else if (message.message() == Message.AGENT) {
                 game.insertPlayer(message.getAgent());
             }
+            determineRunning();
         }
-        Broadcast shoot = game.getFinalShoot();
-        LOG.info("Final Shoot " + shoot);
-        System.out.println("Final Shoot " + shoot);
+        LOG.info("END");
     }
 
     private void broadcast(ID gotShootAt){
@@ -106,5 +103,32 @@ public class Agent implements Runnable {
             chord.retrieve(shootAt);
         });
         shooter.start();
+    }
+
+    private void coap(){
+        if(game.getOwnShips() < Game.SHIPS/2){
+            coap.changeColorTo(Coap.BLUE);
+        }
+        else if(game.getOwnShips() < Game.SHIPS){
+            coap.changeColorTo(Coap.VIOLET);
+        }
+        else {
+            coap.changeColorTo(Coap.RED);
+        }
+    }
+
+    private void determineRunning(){
+        for(ID player: game.getDestoryedPlayer()){
+            Shoot finalShoot = game.getDestroyingShootForPlayer(player);
+            if(game.didIShootHim(player)){
+                LOG.info("Player " + player + " was destroyed by me!!!");
+                running = false;
+            }
+            else {
+                LOG.info("Player " + player + " was destroyed by " + finalShoot.getShooter() + "!!!");
+            }
+            LOG.info("Player was destoryed in Round " + finalShoot.getTransactionNumber() + "!!!");
+            LOG.info("Final Shoot was on " + finalShoot.getTarget() + "!!!");
+        }
     }
 }

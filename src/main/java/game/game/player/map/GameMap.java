@@ -107,7 +107,7 @@ public class GameMap {
         return fields;
     }
 
-    public void addBroadcast(Broadcast broadcast) {
+    public Field addBroadcast(Broadcast broadcast) {
         Field field = getFieldForID(broadcast.getTarget());
         if (field.isUnknown()) {
             if (broadcast.getHit()) {
@@ -127,6 +127,7 @@ public class GameMap {
                 addShip(field);
             }
         }
+        return field;
     }
 
     public Field getFieldForID(ID id) {

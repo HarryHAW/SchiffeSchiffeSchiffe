@@ -24,8 +24,9 @@ public class StrategicFieldScout implements FieldScout {
     public Field getTarget(ID playerID) {
         Player player = game.getPlayer(playerID);
         Field field = player.getFields().get(0);
-        while(!field.isUnknown() || player.getShootAt().contains(field)) {
-            field = player.getFields().get(random.nextInt(player.getFields().size()));
+        //while(!field.isUnknown() || player.getShootAt().contains(field)) {
+        while(!field.isUnknown()) {
+                field = player.getFields().get(random.nextInt(player.getFields().size()));
         }
         return field;
     }

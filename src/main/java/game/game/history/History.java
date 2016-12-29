@@ -13,12 +13,16 @@ import java.util.Map;
  */
 public class History {
     private Map<Integer, Broadcast> broadcasts;
+    private List<Integer> broadcastOrder;
 
     private int lastTransactionNumber;
     private Broadcast lastBroadcast;
 
+    private ID startingPlayer;
+
     public History() {
         this.broadcasts = new HashMap<>();
+        this.broadcastOrder = new ArrayList<>();
     }
 
     public Broadcast getLastBroadcast() {
@@ -34,11 +38,13 @@ public class History {
             if(lastBroadcast.getTransaction() == -1){
                 lastBroadcast = broadcast;
                 lastTransactionNumber = broadcast.getTransaction();
+                added = true;
             }
         }
         else {
             if(lastBroadcast != null) {
                 broadcasts.put(lastBroadcast.getTransaction(), lastBroadcast);
+                broadcastOrder.add(lastBroadcast.getTransaction());
             }
             lastBroadcast = broadcast;
             if(broadcast.getTransaction() != -1){
@@ -55,7 +61,10 @@ public class History {
         }
         Broadcast broadcast = lastBroadcast;
         while (broadcast.getSource().compareTo(playerID) != 0 && broadcast.getHit() != true){
-            broadcast = getBroadcastOfTransactionNumber(broadcast.getTransaction() - 1);
+            broadcast = getBroadcastBevorBroadcast(broadcast);
+            if(broadcast == null){
+                System.out.println("ds");
+            }
         }
         return broadcast;
     }
@@ -87,10 +96,18 @@ public class History {
 
     public Broadcast getBroadcastOfTransactionNumber(int transactionNumber){
         Broadcast broadcast = null;
-        while (!broadcasts.containsKey(transactionNumber) && transactionNumber >= 0){
-            transactionNumber--;
+        int i = broadcastOrder.size() - 1;
+        if(i >= 0 && transactionNumber >= broadcasts.get(broadcastOrder.get(i)).getTransaction()){
+            broadcast = broadcasts.get(broadcastOrder.get(i));
         }
-        broadcast = broadcasts.get(transactionNumber);
+        while (broadcast == null && i >= 1) {
+            if(transactionNumber >= broadcasts.get(broadcastOrder.get(i - 1)).getTransaction()
+                    && transactionNumber < broadcasts.get(broadcastOrder.get(i)).getTransaction()){
+                broadcast = broadcasts.get(broadcastOrder.get(i - 1));
+            }
+            i--;
+        }
+
         return broadcast;
     }
 
@@ -110,5 +127,21 @@ public class History {
             transaction = lastTransactionNumber;
         }
         return getBroadcastOfTransactionNumber(transaction);
+    }
+
+    public void setStartingPlayer(ID startingPlayer){
+        this.startingPlayer = startingPlayer;
+    }
+
+    public ID getStartingPlayer(){
+        return startingPlayer;
+    }
+
+    public Broadcast getFirstBroadcast(){
+        Broadcast broadcast = null;
+        if (!broadcastOrder.isEmpty()) {
+            broadcast = broadcasts.get(broadcastOrder.get(0));
+        }
+        return broadcast;
     }
 }
