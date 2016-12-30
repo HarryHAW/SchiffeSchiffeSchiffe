@@ -24,7 +24,7 @@ public class Game {
     private static Logger LOG = Logger.getLogger(Game.class);
     public static int FIELDS = 100;
     public static int SHIPS = 10;
-    public static DistributionType SHIPDISTRIBUTION = DistributionType.STRATEGIC;
+    public static DistributionType SHIPDISTRIBUTION = DistributionType.LINEAR;
 
 
     private Map<ID, Player> playerMap;
