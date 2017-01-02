@@ -191,7 +191,14 @@ public class Main {
         agent.run();
     }
 
+    //First menu
     private void first(BufferedReader br) throws IOException, ServiceException {
+        System.out.println("---- possible actions ----");
+        System.out.println("create - create game");
+        System.out.println("join - join existing game");
+        System.out.println("start - start game");
+        System.out.println("exit - exit");
+        System.out.println("----");
         System.out.println("What to do:");
         boolean run = true;
         while (run) {
@@ -219,10 +226,19 @@ public class Main {
         }
     }
 
+    //submenu to set ports and ip
     private void second(BufferedReader br) throws IOException {
         boolean run = true;
         System.out.println("url: " + urlPart + " port: " + port);
         System.out.println("lurl: " + lurlPart + " lport: " + lport);
+        System.out.println("---- possible actions ----");
+        System.out.println("port/lport  - change port");
+        System.out.println("url/lurl - change ip");
+        System.out.println("cport - change coap-port");
+        System.out.println("show - to show port and url");
+        System.out.println("exit - exit submenu");
+        System.out.println("----");
+        System.out.println("What to do:");
         while (run) {
             String input = br.readLine();
 
@@ -236,6 +252,7 @@ public class Main {
             }
             else if ("show".equals(input)) {
                 System.out.println("url: " + urlPart + " port: " + port);
+                System.out.println("lurl: " + lurlPart + " lport: " + lport);
             }
 
             else if ("lurl".equals(input)) {
@@ -245,9 +262,6 @@ public class Main {
             else if ("lport".equals(input)) {
                 lport = Integer.parseInt(br.readLine());
                 System.out.println("lport: " + lport);
-            }
-            else if ("lshow".equals(input)) {
-                System.out.println("lurl: " + lurlPart + " lport: " + lport);
             }
             else if ("cport".equals(input)) {
                 coapPort = Integer.parseInt(br.readLine());
@@ -261,6 +275,7 @@ public class Main {
 
             else {
                 lport = lport + Integer.parseInt(input);
+                System.out.println("url: " + urlPart + " port: " + port);
                 System.out.println("lurl: " + lurlPart + " lport: " + lport);
                 System.out.println("Exit!");
                 run = false;

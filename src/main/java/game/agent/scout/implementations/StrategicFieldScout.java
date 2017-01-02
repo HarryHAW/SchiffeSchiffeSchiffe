@@ -22,6 +22,7 @@ public class StrategicFieldScout implements FieldScout {
         this.game = game;
     }
 
+    //Choose field as Target
     @Override
     public Field getTarget(ID playerID) {
         Player player = game.getPlayer(playerID);

@@ -31,6 +31,7 @@ public class StrategicPlayerScout implements PlayerScout {
         this.game = game;
     }
 
+    //Choose Player as target
     @Override
     public ID getTarget() {
         ID playerID = game.getSelf();

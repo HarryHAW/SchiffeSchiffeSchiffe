@@ -96,6 +96,7 @@ public class Agent implements Runnable {
         //broadcaster.start();
     }
 
+    //shoot at field of other player
     private void shoot(){
         final ID shootAt = scout.getTarget();
         LOG.info("Going to shoot at " + shootAt);
@@ -105,6 +106,7 @@ public class Agent implements Runnable {
         shooter.start();
     }
 
+    // set led-color via coap
     private void coap(){
         if(game.getOwnShips() < Game.SHIPS/2){
             coap.changeColorTo(Coap.BLUE);

@@ -39,7 +39,7 @@ public class Scout {
         }
     }
 
-
+    // Get field as target
     public ID getTarget(){
         //TODO
         try {
