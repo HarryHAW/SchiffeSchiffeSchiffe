@@ -15,6 +15,9 @@ import java.util.*;
 
 /**
  * Created by beckf on 17.12.2016.
+ *
+ * Class to manage the Game with all Players and their gameMaps/Ships.
+ *
  */
 public class Game {
     public static final ID MIN_ID = ID.valueOf(BigInteger.ZERO);
@@ -64,7 +67,7 @@ public class Game {
         return history.getHistoryForPlayer(player);
     }
 
-    public List<ID> getDestoryedPlayer() {
+    public List<ID> getDestroyedPlayer() {
         return destoryedPlayer;
     }
 

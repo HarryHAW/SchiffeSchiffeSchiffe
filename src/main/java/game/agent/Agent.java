@@ -1,6 +1,5 @@
 package game.agent;
 
-import de.uniba.wiai.lspi.chord.com.Broadcast;
 import de.uniba.wiai.lspi.chord.com.Node;
 import de.uniba.wiai.lspi.chord.data.ID;
 import de.uniba.wiai.lspi.chord.service.impl.ChordImpl;
@@ -54,7 +53,7 @@ public class Agent implements Runnable {
         List<ID> fingerTable = new ArrayList<>();
         for (Node node : chord.getFingerTable()) {
             fingerTable.add(node.getNodeID());
-            LOG.info("Got id from finger tabel: " + node.getNodeID());
+            LOG.info("Got id from finger table: " + node.getNodeID());
         }
 
         game.initGame(self, predecessor, fingerTable);
@@ -120,7 +119,7 @@ public class Agent implements Runnable {
     }
 
     private void determineRunning(){
-        for(ID player: game.getDestoryedPlayer()){
+        for(ID player: game.getDestroyedPlayer()){
             Shoot finalShoot = game.getDestroyingShootForPlayer(player);
             if(game.didIShootHim(player)){
                 LOG.info("Player " + player + " was destroyed by me!!!");
@@ -129,7 +128,7 @@ public class Agent implements Runnable {
             else {
                 LOG.info("Player " + player + " was destroyed by " + finalShoot.getShooter() + "!!!");
             }
-            LOG.info("Player was destoryed in Round " + finalShoot.getTransactionNumber() + "!!!");
+            LOG.info("Player was destroyed in Round " + finalShoot.getTransactionNumber() + "!!!");
             LOG.info("Final Shoot was on " + finalShoot.getTarget() + "!!!");
         }
     }

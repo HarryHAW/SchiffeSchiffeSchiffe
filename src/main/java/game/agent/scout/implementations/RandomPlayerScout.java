@@ -8,6 +8,8 @@ import java.util.Random;
 
 /**
  * Created by beckf on 22.12.2016.
+ *
+ * Stragey to find next player as target - random
  */
 public class RandomPlayerScout implements PlayerScout{
     private Random random;

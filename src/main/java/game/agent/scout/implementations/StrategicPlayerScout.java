@@ -16,6 +16,15 @@ import sun.rmi.runtime.Log;
 
 /**
  * Created by admin on 22.12.2016.
+ *
+ * Class do determine which player will be our next target.
+ *
+ * Strategy:
+ *  if there is a player with 9 destroyed ships - attack him
+ *  if there is an player who always target us - if we are in a better condition, attack him
+ *  Else: attack the player with the lowest ship losses and the lowest amount of shoots against him.
+ *
+ *
  */
 public class StrategicPlayerScout implements PlayerScout {
     private Random random;

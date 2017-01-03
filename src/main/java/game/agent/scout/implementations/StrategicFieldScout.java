@@ -10,6 +10,11 @@ import java.util.Random;
 
 /**
  * Created by admin on 22.12.2016.
+ *
+ * Class to determine on which field we will shoot at.
+ *
+ * stragey:
+ * Field which wasnt previously hit.
  */
 public class StrategicFieldScout implements FieldScout {
     public static final int CLUSTERSIZE = 15;
@@ -34,5 +39,4 @@ public class StrategicFieldScout implements FieldScout {
         return field;
     }
 
-    //public static
 }

@@ -185,6 +185,7 @@ public class Main {
         agent = new Agent(chord, messages, coap);
     }
 
+    //start game ==> start the agent
     public void start(){
         agent.initAgent();
         //enemyCrawler.run();
@@ -267,7 +268,6 @@ public class Main {
                 coapPort = Integer.parseInt(br.readLine());
                 System.out.println("coapPort: " + coapPort);
             }
-
             else if ("exit".equals(input)) {
                 System.out.println("Exit!");
                 run = false;

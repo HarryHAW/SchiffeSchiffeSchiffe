@@ -10,6 +10,7 @@ import java.util.Random;
 
 /**
  * Created by beckf on 22.12.2016.
+ * strategy to find next field as target - random
  */
 public class RandomFieldScout implements FieldScout {
     private Random random;

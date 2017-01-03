@@ -6,6 +6,8 @@ import java.util.List;
 
 /**
  * Created by beckf on 20.12.2016.
+ *
+ * Class to manage the messages
  */
 public class Messages {
     List<Message> messages;
