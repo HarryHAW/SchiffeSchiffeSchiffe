@@ -27,7 +27,7 @@ public class Game {
     private static Logger LOG = Logger.getLogger(Game.class);
     public static int FIELDS = 100;
     public static int SHIPS = 10;
-    public static DistributionType SHIPDISTRIBUTION = DistributionType.LINEAR;
+    public static DistributionType SHIPDISTRIBUTION = DistributionType.STRATEGIC;
 
 
     private Map<ID, Player> playerMap;
@@ -140,7 +140,7 @@ public class Game {
     }
 
     public void addBroadcast(Broadcast broadcast) {
-        LOG.debug("Got Broadcast " + broadcast);
+        LOG.info("Got Broadcast " + broadcast);
         ID source = broadcast.getSource();
         if (history.addEntry(broadcast)) {
             if (playerMap.containsKey(source)) {

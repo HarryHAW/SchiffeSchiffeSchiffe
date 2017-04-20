@@ -29,12 +29,12 @@ public class Main {
     private EnemyCrawler enemyCrawler;
     private Agent agent;
 
-    private String urlPart = "localhost";
-    private String lurlPart = "localhost";
+    private String urlPart = "192.168.41.166";
+    private String lurlPart = "192.168.41.174";
     //private String urlPart = "localhost";
     //private String lurlPart = "localhost";
-    private int port = 8082;
-    private int lport = 8081;
+    private int port = 10002;
+    private int lport = 10002;
 
     private String coapURL = "localhost";
     private int coapPort = 5683;
